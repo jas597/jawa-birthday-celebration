@@ -1689,11 +1689,82 @@ h1 {
   }
 
   .gift-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .gift-card {
+    min-height: 230px;
+  }
+
+  .gift-card:hover {
+    transform: none;
   }
 
   .gift-trigger {
-    min-height: 220px;
+    min-height: 210px;
+    padding: 18px 10px 14px;
+  }
+
+  .gift-status {
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    font-size: 0.82rem;
+  }
+
+  .gift-visual {
+    width: 96px;
+    height: 96px;
+    margin: 24px auto 18px;
+  }
+
+  .gift-lid {
+    width: 104px;
+    height: 26px;
+  }
+
+  .gift-box-base {
+    top: 36px;
+    width: 90px;
+    height: 60px;
+  }
+
+  .gift-ribbon-vertical {
+    width: 16px;
+    height: 88px;
+  }
+
+  .gift-ribbon-horizontal {
+    top: 56px;
+    width: 96px;
+    height: 14px;
+  }
+
+  .gift-label {
+    font-size: 0.86rem;
+    line-height: 1.15;
+  }
+
+  .gift-details {
+    padding: 16px 10px 18px;
+  }
+
+  .gift-details h2 {
+    font-size: 1rem;
+  }
+
+  .gift-details p {
+    font-size: 0.84rem;
+  }
+
+  .media-card {
+    padding: 12px;
+  }
+
+  .media-heading h3 {
+    font-size: 0.88rem;
   }
 
   .progress-label {
@@ -1713,6 +1784,21 @@ h1 {
   .final-ready-actions {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .final-ready-modal {
+    align-items: center;
+    padding: 16px;
+  }
+
+  .final-ready-card {
+    max-height: min(86vh, 560px);
+    overflow-y: auto;
+    padding: 24px 18px;
+  }
+
+  .final-ready-card h2 {
+    font-size: clamp(1.7rem, 9vw, 2.45rem);
   }
 
   .video-modal {

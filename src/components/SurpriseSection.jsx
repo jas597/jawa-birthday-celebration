@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import GiftBox from "./GiftBox.jsx";
 import ProgressBar from "./ProgressBar.jsx";
 
@@ -14,6 +15,26 @@ export default function SurpriseSection({
   onOpenFinalSurprise,
 }) {
   const [showFinalPrompt, setShowFinalPrompt] = useState(false);
+
+  useEffect(() => {
+    if (!showFinalPrompt) {
+      return undefined;
+    }
+
+    function closeOnEscape(event) {
+      if (event.key === "Escape") {
+        setShowFinalPrompt(false);
+      }
+    }
+
+    document.body.classList.add("modal-open");
+    window.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      document.body.classList.remove("modal-open");
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [showFinalPrompt]);
 
   function confirmFinalSurprise() {
     setShowFinalPrompt(false);
@@ -48,25 +69,37 @@ export default function SurpriseSection({
         </button>
       )}
 
-      {showFinalPrompt && (
-        <div className="final-ready-modal" role="dialog" aria-modal="true" aria-labelledby="final-ready-title">
-          <div className="final-ready-card">
-            <p className="eyebrow">All Dedications Opened</p>
-            <h2 id="final-ready-title">Are you ready for the final big one?</h2>
-            <p>
-              The last surprise is waiting for {config.recipientName}. Open it when the moment feels right.
-            </p>
-            <div className="final-ready-actions">
-              <button className="primary-button" type="button" onClick={confirmFinalSurprise}>
-                Yes, Open It
-              </button>
-              <button className="secondary-button" type="button" onClick={() => setShowFinalPrompt(false)}>
-                Not Yet
-              </button>
+      {showFinalPrompt &&
+        createPortal(
+          <div
+            className="final-ready-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="final-ready-title"
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) {
+                setShowFinalPrompt(false);
+              }
+            }}
+          >
+            <div className="final-ready-card">
+              <p className="eyebrow">All Dedications Opened</p>
+              <h2 id="final-ready-title">Are you ready for the final big one?</h2>
+              <p>
+                The last surprise is waiting for {config.recipientName}. Open it when the moment feels right.
+              </p>
+              <div className="final-ready-actions">
+                <button className="primary-button" type="button" onClick={confirmFinalSurprise}>
+                  Yes, Open It
+                </button>
+                <button className="secondary-button" type="button" onClick={() => setShowFinalPrompt(false)}>
+                  Not Yet
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
     </section>
   );
 }
