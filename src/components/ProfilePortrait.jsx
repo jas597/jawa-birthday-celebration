@@ -14,6 +14,9 @@ export default function ProfilePortrait({ config, size = "hero", className = "",
           <img
             src={imageSrc}
             alt={`${config.recipientName} smiling portrait`}
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
             onError={() => setImageFailed(true)}
           />
         ) : (

@@ -1,8 +1,8 @@
 export const birthdayConfig = {
   // Edit names, messages, and media paths here.
   recipientName: "Jawa",
-  profileImage: "/images/jawa.png",
-  messageImage: "/images/jawa-message.png",
+  profileImage: "/images/jawa-optimized.jpg",
+  messageImage: "/images/jawa-message-optimized.jpg",
   companyName: "",
   senderName: "From Maria, Sasi, Jas, Kim & Kanna",
 
@@ -17,7 +17,7 @@ export const birthdayConfig = {
     "May this new year of your life bring you happiness, good health, continued success, and many unforgettable moments.",
   finalSurpriseTitle: "❤️ A Special Prayer & Gift for You",
   finalSurpriseVideo: "/videos/children-prayer.mp4",
-  finalVideoPoster: "/images/jawa.png",
+  finalVideoPoster: "/images/jawa-optimized.jpg",
   finalTeamMessage:
     "Thank you for your leadership, support, guidance, and inspiration. These songs and wishes have been selected with love and appreciation by Maria, Sasi, Jas, Kim, and Kanna. We wish you happiness, good health, continued success, and a wonderful year ahead.",
 
@@ -36,7 +36,7 @@ export const birthdayConfig = {
       message:
         "Dear Jawa, thank you for your guidance, encouragement, and constant support. Wishing you a wonderful birthday and a year filled with happiness and success.",
       audio: "/songs/maria.mp3",
-      image: "/images/maria-dedication.png",
+      image: "/images/maria-dedication-optimized.jpg",
       video: null,
     },
     {
@@ -47,7 +47,7 @@ export const birthdayConfig = {
       message:
         "Sasi has prepared a special song and a personal birthday video just for you.",
       audio: "/songs/sasi.mp3",
-      image: "/images/sasi-dedication.png",
+      image: "/images/sasi-dedication-optimized.jpg",
       video: "/videos/sasi-birthday.mp4",
     },
     {
@@ -58,7 +58,7 @@ export const birthdayConfig = {
       message:
         "Thank you for believing in me, supporting my growth, and encouraging me to do more. Wishing you happiness, good health, and continued success.",
       audio: "/songs/jas.mp3",
-      image: "/images/jas-dedication.png",
+      image: "/images/jas-dedication-optimized.jpg",
       video: null,
     },
     {
@@ -70,7 +70,7 @@ export const birthdayConfig = {
         "Wishing you another year filled with success, good health, happiness, and memorable moments. Happy Birthday, Jawa!",
       audio: "/songs/kim.mp3",
       audioStartAt: 4,
-      image: "/images/kim-dedication.png",
+      image: "/images/kim-dedication-optimized.jpg",
       video: null,
     },
     {
@@ -81,7 +81,7 @@ export const birthdayConfig = {
       message:
         "Thank you for your support, leadership, and encouragement. May this year bring you endless happiness and success.",
       audio: "/songs/kanna.mp3",
-      image: "/images/kanna-dedication.png",
+      image: "/images/kanna-dedication-optimized.jpg",
       video: null,
     },
   ],
