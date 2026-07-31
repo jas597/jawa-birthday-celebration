@@ -14,12 +14,14 @@ export default function GiftBox({
 }) {
   const [activeTab, setActiveTab] = useState("song");
   const [isImageOpen, setIsImageOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [imageMediaStopSignal, setImageMediaStopSignal] = useState(0);
   const [playAttentionSignal, setPlayAttentionSignal] = useState(0);
   const wasOpenRef = useRef(false);
   const audioId = `audio-${dedication.id}`;
   const videoId = `video-${dedication.id}`;
   const dedicationImageSrc = dedication.image ? resolvePublicAsset(dedication.image) : "";
+  const isExpanded = isOpen && !isCollapsed;
 
   useEffect(() => {
     if (!isImageOpen) {
@@ -55,6 +57,7 @@ export default function GiftBox({
 
   useEffect(() => {
     if (isOpen && !wasOpenRef.current) {
+      setIsCollapsed(false);
       setActiveTab("song");
       setPlayAttentionSignal((signal) => signal + 1);
     }
@@ -69,6 +72,7 @@ export default function GiftBox({
 
   function closeImage({ stopSong = false } = {}) {
     setIsImageOpen(false);
+    setIsCollapsed(true);
 
     if (stopSong) {
       onStopMedia(audioId);
@@ -76,13 +80,29 @@ export default function GiftBox({
     }
   }
 
+  function collapseAfterSong() {
+    setIsImageOpen(false);
+    setIsCollapsed(true);
+  }
+
+  function handleGiftClick() {
+    if (isOpen) {
+      setIsCollapsed(false);
+      setActiveTab("song");
+      setPlayAttentionSignal((signal) => signal + 1);
+      return;
+    }
+
+    onOpen(dedication.id);
+  }
+
   return (
-    <article className={`gift-card ${isOpen ? "is-open" : ""}`}>
+    <article className={`gift-card ${isExpanded ? "is-open" : ""} ${isOpen ? "was-opened" : ""}`}>
       <button
         className="gift-trigger"
         type="button"
-        onClick={() => onOpen(dedication.id)}
-        aria-expanded={isOpen}
+        onClick={handleGiftClick}
+        aria-expanded={isExpanded}
       >
         <span className="gift-status" aria-hidden="true">
           {isOpen ? "✓" : dedication.id}
@@ -96,7 +116,7 @@ export default function GiftBox({
         <span className="gift-label">{dedication.label}</span>
       </button>
 
-      {isOpen && (
+      {isExpanded && (
         <div className="gift-details">
           <p className="person-name">{dedication.person}</p>
           <h2>{dedication.title}</h2>
@@ -139,7 +159,7 @@ export default function GiftBox({
               onRequestPlay={onRequestMediaPlay}
               onStop={onStopMedia}
               onMediaStart={dedication.image ? () => setIsImageOpen(true) : undefined}
-              onMediaEnd={dedication.image ? () => setIsImageOpen(false) : undefined}
+              onMediaEnd={dedication.image ? collapseAfterSong : undefined}
             />
           )}
 

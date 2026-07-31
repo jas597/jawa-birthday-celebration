@@ -626,6 +626,10 @@ h1 {
   border-color: rgba(248, 214, 109, 0.62);
 }
 
+.gift-card.was-opened:not(.is-open) {
+  border-color: rgba(248, 214, 109, 0.32);
+}
+
 .gift-trigger {
   position: relative;
   width: 100%;
@@ -653,6 +657,11 @@ h1 {
   color: var(--gold-soft);
   background: rgba(255, 255, 255, 0.08);
   font-weight: 900;
+}
+
+.gift-card.was-opened:not(.is-open) .gift-status {
+  color: #151006;
+  background: linear-gradient(135deg, var(--gold-soft), var(--gold));
 }
 
 .gift-visual {
