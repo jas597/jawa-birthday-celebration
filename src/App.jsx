@@ -59,6 +59,12 @@ export default function App() {
     stopCakeBirthdayMusic();
   }, [screen, isMuted, candlesBlown]);
 
+  useEffect(() => {
+    if (screen !== "cake") {
+      stopCandleCheer();
+    }
+  }, [screen]);
+
   useEffect(() => () => stopCakeBirthdayMusic(), []);
   useEffect(() => () => stopCandleCheer(), []);
 
@@ -135,6 +141,11 @@ export default function App() {
     triggerConfetti();
     stopCakeBirthdayMusic({ reset: true });
     playCandleCheer();
+  }
+
+  function openSurprises() {
+    stopCandleCheer();
+    setScreen("surprises");
   }
 
   function openGift(id) {
@@ -240,7 +251,7 @@ export default function App() {
             config={birthdayConfig}
             candlesBlown={candlesBlown}
             onBlowCandles={blowCandles}
-            onOpenSurprises={() => setScreen("surprises")}
+            onOpenSurprises={openSurprises}
           />
         )}
 

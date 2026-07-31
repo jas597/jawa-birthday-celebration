@@ -94,7 +94,13 @@ export default function GiftBox({
   function closeImage({ stopSong = false } = {}) {
     setIsImageOpen(false);
 
-    if (dedication.video && isWaitingForVideo) {
+    if (dedication.video) {
+      if (stopSong) {
+        onStopMedia(audioId);
+        setImageMediaStopSignal((signal) => signal + 1);
+      }
+
+      setIsWaitingForVideo(true);
       setShowGiftModal(true);
       setIsCollapsed(false);
       setActiveTab("video");
