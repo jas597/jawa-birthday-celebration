@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import GiftBox from "./GiftBox.jsx";
 import ProgressBar from "./ProgressBar.jsx";
+import { resolvePublicAsset } from "../utils/mediaPaths.js";
 
 export default function SurpriseSection({
   config,
@@ -15,6 +16,23 @@ export default function SurpriseSection({
   onOpenFinalSurprise,
 }) {
   const [showFinalPrompt, setShowFinalPrompt] = useState(false);
+
+  useEffect(() => {
+    const preloadedImages = [];
+
+    config.dedications
+      .filter((dedication) => dedication.image)
+      .forEach((dedication) => {
+        const image = new Image();
+        image.decoding = "async";
+        image.src = resolvePublicAsset(dedication.image);
+        preloadedImages.push(image);
+      });
+
+    return () => {
+      preloadedImages.length = 0;
+    };
+  }, [config.dedications]);
 
   useEffect(() => {
     if (!showFinalPrompt) {
