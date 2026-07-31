@@ -14,6 +14,7 @@ export default function GiftBox({
 }) {
   const [activeTab, setActiveTab] = useState("song");
   const [isImageOpen, setIsImageOpen] = useState(false);
+  const [showGiftModal, setShowGiftModal] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [imageMediaStopSignal, setImageMediaStopSignal] = useState(0);
   const [playAttentionSignal, setPlayAttentionSignal] = useState(0);
@@ -21,16 +22,33 @@ export default function GiftBox({
   const audioId = `audio-${dedication.id}`;
   const videoId = `video-${dedication.id}`;
   const dedicationImageSrc = dedication.image ? resolvePublicAsset(dedication.image) : "";
-  const isExpanded = isOpen && !isCollapsed;
+  const isExpanded = isOpen && !isCollapsed && showGiftModal;
+
+  function closeGiftModal({ stopMedia = true } = {}) {
+    setShowGiftModal(false);
+    setIsCollapsed(true);
+    setIsImageOpen(false);
+
+    if (stopMedia) {
+      onStopMedia(audioId);
+      onStopMedia(videoId);
+      setImageMediaStopSignal((signal) => signal + 1);
+    }
+  }
 
   useEffect(() => {
-    if (!isImageOpen) {
+    if (!isImageOpen && !isExpanded) {
       return undefined;
     }
 
     function closeOnEscape(event) {
       if (event.key === "Escape") {
-        closeImage({ stopSong: true });
+        if (isImageOpen) {
+          closeImage({ stopSong: true });
+          return;
+        }
+
+        closeGiftModal();
       }
     }
 
@@ -41,7 +59,7 @@ export default function GiftBox({
       document.body.classList.remove("modal-open");
       window.removeEventListener("keydown", closeOnEscape);
     };
-  }, [isImageOpen]);
+  }, [isExpanded, isImageOpen]);
 
   useEffect(() => {
     if (dedication.image && isImageOpen && activeMedia && activeMedia.id !== audioId) {
@@ -58,6 +76,7 @@ export default function GiftBox({
   useEffect(() => {
     if (isOpen && !wasOpenRef.current) {
       setIsCollapsed(false);
+      setShowGiftModal(true);
       setActiveTab("song");
       setPlayAttentionSignal((signal) => signal + 1);
     }
@@ -72,6 +91,7 @@ export default function GiftBox({
 
   function closeImage({ stopSong = false } = {}) {
     setIsImageOpen(false);
+    setShowGiftModal(false);
     setIsCollapsed(true);
 
     if (stopSong) {
@@ -82,12 +102,21 @@ export default function GiftBox({
 
   function collapseAfterSong() {
     setIsImageOpen(false);
+    if (dedication.video) {
+      setActiveTab("video");
+      setShowGiftModal(true);
+      setIsCollapsed(false);
+      return;
+    }
+
+    setShowGiftModal(false);
     setIsCollapsed(true);
   }
 
   function handleGiftClick() {
     if (isOpen) {
       setIsCollapsed(false);
+      setShowGiftModal(true);
       setActiveTab("song");
       setPlayAttentionSignal((signal) => signal + 1);
       return;
@@ -116,68 +145,99 @@ export default function GiftBox({
         <span className="gift-label">{dedication.label}</span>
       </button>
 
-      {isExpanded && (
-        <div className="gift-details">
-          <p className="person-name">{dedication.person}</p>
-          <h2>{dedication.title}</h2>
-          <p>{dedication.message}</p>
+      {isExpanded &&
+        createPortal(
+          <div
+            className="gift-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`gift-title-${dedication.id}`}
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) {
+                closeGiftModal();
+              }
+            }}
+          >
+            <div className="gift-modal-panel">
+              <div className="gift-modal-header">
+                <div>
+                  <span>{dedication.person}</span>
+                  <h2 id={`gift-title-${dedication.id}`}>{dedication.title}</h2>
+                </div>
+                <button
+                  className="gift-close-button"
+                  type="button"
+                  onClick={() => closeGiftModal()}
+                  aria-label="Close dedication"
+                >
+                  X
+                </button>
+              </div>
 
-          {dedication.video && (
-            <div className="media-tabs" role="tablist" aria-label={`${dedication.person} media options`}>
-              <button
-                className={activeTab === "song" ? "is-selected" : ""}
-                type="button"
-                role="tab"
-                aria-selected={activeTab === "song"}
-                onClick={() => selectTab("song")}
-              >
-                Song Dedication
-              </button>
-              <button
-                className={activeTab === "video" ? "is-selected" : ""}
-                type="button"
-                role="tab"
-                aria-selected={activeTab === "video"}
-                onClick={() => selectTab("video")}
-              >
-                Video Message
-              </button>
+              <div className="gift-details">
+                <p>{dedication.message}</p>
+
+                {dedication.video && (
+                  <div className="media-tabs" role="tablist" aria-label={`${dedication.person} media options`}>
+                    <button
+                      className={activeTab === "song" ? "is-selected" : ""}
+                      type="button"
+                      role="tab"
+                      aria-selected={activeTab === "song"}
+                      onClick={() => selectTab("song")}
+                    >
+                      Song Dedication
+                    </button>
+                    <button
+                      className={activeTab === "video" ? "is-selected" : ""}
+                      type="button"
+                      role="tab"
+                      aria-selected={activeTab === "video"}
+                      onClick={() => selectTab("video")}
+                    >
+                      Video Message
+                    </button>
+                  </div>
+                )}
+
+                {activeTab === "song" && (
+                  <MediaPlayer
+                    id={dedication.id}
+                    type="audio"
+                    title={dedication.video ? `Play ${dedication.person}'s Song` : dedication.title}
+                    person={dedication.person}
+                    src={dedication.audio}
+                    startAt={dedication.audioStartAt}
+                    playAttentionSignal={playAttentionSignal}
+                    activeMedia={activeMedia}
+                    stopSignal={stopSignal + imageMediaStopSignal}
+                    onRequestPlay={onRequestMediaPlay}
+                    onStop={onStopMedia}
+                    onMediaStart={dedication.image ? () => setIsImageOpen(true) : undefined}
+                    onMediaEnd={dedication.image || dedication.video ? collapseAfterSong : undefined}
+                  />
+                )}
+
+                {dedication.video && activeTab === "video" && (
+                  <MediaPlayer
+                    id={dedication.id}
+                    type="video"
+                    title={`Watch ${dedication.person}'s Birthday Video`}
+                    person={dedication.person}
+                    src={dedication.video}
+                    activeMedia={activeMedia}
+                    stopSignal={stopSignal}
+                    onRequestPlay={onRequestMediaPlay}
+                    onStop={onStopMedia}
+                    onMediaEnd={() => closeGiftModal({ stopMedia: false })}
+                    onMediaClose={() => closeGiftModal({ stopMedia: false })}
+                  />
+                )}
+              </div>
             </div>
-          )}
-
-          {activeTab === "song" && (
-            <MediaPlayer
-              id={dedication.id}
-              type="audio"
-              title={dedication.video ? `Play ${dedication.person}'s Song` : dedication.title}
-              person={dedication.person}
-              src={dedication.audio}
-              startAt={dedication.audioStartAt}
-              playAttentionSignal={playAttentionSignal}
-              activeMedia={activeMedia}
-              stopSignal={stopSignal + imageMediaStopSignal}
-              onRequestPlay={onRequestMediaPlay}
-              onStop={onStopMedia}
-              onMediaStart={dedication.image ? () => setIsImageOpen(true) : undefined}
-              onMediaEnd={dedication.image ? collapseAfterSong : undefined}
-            />
-          )}
-
-          {dedication.video && activeTab === "video" && (
-            <MediaPlayer
-              id={dedication.id}
-              type="video"
-              title={`Watch ${dedication.person}'s Birthday Video`}
-              person={dedication.person}
-              src={dedication.video}
-              activeMedia={activeMedia}
-              stopSignal={stopSignal}
-              onRequestPlay={onRequestMediaPlay}
-              onStop={onStopMedia}
-            />
-          )}
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
 
       {isImageOpen &&
         createPortal(

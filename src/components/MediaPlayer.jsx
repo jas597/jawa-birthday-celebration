@@ -23,6 +23,7 @@ export default function MediaPlayer({
   onStop,
   onMediaStart,
   onMediaEnd,
+  onMediaClose,
 }) {
   const mediaRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -221,6 +222,7 @@ export default function MediaPlayer({
     setIsPlaying(false);
     setIsVideoOpen(false);
     onStop(mediaId);
+    onMediaClose?.();
   }
 
   const mediaProps = {
