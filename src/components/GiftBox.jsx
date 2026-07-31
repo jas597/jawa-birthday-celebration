@@ -16,6 +16,7 @@ export default function GiftBox({
   const [isImageOpen, setIsImageOpen] = useState(false);
   const [showGiftModal, setShowGiftModal] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isWaitingForVideo, setIsWaitingForVideo] = useState(false);
   const [imageMediaStopSignal, setImageMediaStopSignal] = useState(0);
   const [playAttentionSignal, setPlayAttentionSignal] = useState(0);
   const wasOpenRef = useRef(false);
@@ -77,6 +78,7 @@ export default function GiftBox({
     if (isOpen && !wasOpenRef.current) {
       setIsCollapsed(false);
       setShowGiftModal(true);
+      setIsWaitingForVideo(false);
       setActiveTab("song");
       setPlayAttentionSignal((signal) => signal + 1);
     }
@@ -91,6 +93,14 @@ export default function GiftBox({
 
   function closeImage({ stopSong = false } = {}) {
     setIsImageOpen(false);
+
+    if (dedication.video && isWaitingForVideo) {
+      setShowGiftModal(true);
+      setIsCollapsed(false);
+      setActiveTab("video");
+      return;
+    }
+
     setShowGiftModal(false);
     setIsCollapsed(true);
 
@@ -103,6 +113,7 @@ export default function GiftBox({
   function collapseAfterSong() {
     setIsImageOpen(false);
     if (dedication.video) {
+      setIsWaitingForVideo(true);
       setActiveTab("video");
       setShowGiftModal(true);
       setIsCollapsed(false);
@@ -117,6 +128,7 @@ export default function GiftBox({
     if (isOpen) {
       setIsCollapsed(false);
       setShowGiftModal(true);
+      setIsWaitingForVideo(false);
       setActiveTab("song");
       setPlayAttentionSignal((signal) => signal + 1);
       return;
@@ -222,15 +234,25 @@ export default function GiftBox({
                   <MediaPlayer
                     id={dedication.id}
                     type="video"
-                    title={`Watch ${dedication.person}'s Birthday Video`}
+                    title={
+                      isWaitingForVideo
+                        ? `Watch Video Dedicated by ${dedication.person}`
+                        : `Watch ${dedication.person}'s Birthday Video`
+                    }
                     person={dedication.person}
                     src={dedication.video}
                     activeMedia={activeMedia}
                     stopSignal={stopSignal}
                     onRequestPlay={onRequestMediaPlay}
                     onStop={onStopMedia}
-                    onMediaEnd={() => closeGiftModal({ stopMedia: false })}
-                    onMediaClose={() => closeGiftModal({ stopMedia: false })}
+                    onMediaEnd={() => {
+                      setIsWaitingForVideo(false);
+                      closeGiftModal({ stopMedia: false });
+                    }}
+                    onMediaClose={() => {
+                      setIsWaitingForVideo(false);
+                      closeGiftModal({ stopMedia: false });
+                    }}
                   />
                 )}
               </div>
